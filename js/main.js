@@ -57,16 +57,13 @@
 
   function prevScrollHeightHandler() {
     let prevScrollHeight = 0;
-
-    
-
     for (let i = 0; i < currentScene; i++) {
       prevScrollHeight += sceneInfo[i].scrollHeight;
     }
     return { prevScrollHeight };
   }
 
-  function animationValuesHandler() {
+  function animationOpacityHandler() {
     const values = sceneInfo[currentScene].values;
     let messageAOpacityStart = values.messageAOpacity[0];
     let messageAOpacityEnd = values.messageAOpacity[1];
@@ -76,20 +73,35 @@
     };
   }
 
-  function calcValues(currentScrollY) {
+  function calcValues() {
+    let rv;
+    const { prevScrollHeight } = prevScrollHeightHandler();
+    const { scrollY } = scrollYSetHandler();
+    const currentScrollYHeight = scrollY - prevScrollHeight;
+
+    let scrollRatio =
+      currentScrollYHeight / sceneInfo[currentScene].scrollHeight;
+
     const { messageAOpacityStart, messageAOpacityEnd } =
-      animationValuesHandler();
+      animationOpacityHandler();
+
+    rv =
+      scrollRatio * (messageAOpacityEnd - messageAOpacityStart) +
+      messageAOpacityStart;
+
+    return rv;
   }
 
   function playAnimation() {
-    const { prevScrollHeight } = prevScrollHeightHandler();
-    const { scrollY } = scrollYSetHandler();
-    const objs = sceneInfo[currentScene.objs];
-    const currentScrollYHeight = scrollY - prevScrollHeight;
+    const objs = sceneInfo[currentScene].objs;
 
     switch (currentScene) {
       case 0:
-        calcValues(currentScrollYHeight);
+        let messageAOpacityFadeIn = calcValues();
+        objs.messageA.style.opacity = messageAOpacityFadeIn;
+        objs.messageB.style.opacity = messageAOpacityFadeIn;
+        objs.messageC.style.opacity = messageAOpacityFadeIn;
+        objs.messageD.style.opacity = messageAOpacityFadeIn;
         break;
       case 1:
         break;
@@ -101,7 +113,6 @@
   }
 
   function scrollLoop() {
-
     const { prevScrollHeight } = prevScrollHeightHandler();
     const { scrollY } = scrollYSetHandler();
     if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
