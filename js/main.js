@@ -8,6 +8,13 @@
       scrollHeight: 0,
       objs: {
         container: document.querySelector("#scroll-section-0"),
+        messageA: document.querySelector("#scroll-section-0 .main-message.a"),
+        messageB: document.querySelector("#scroll-section-0 .main-message.b"),
+        messageC: document.querySelector("#scroll-section-0 .main-message.c"),
+        messageD: document.querySelector("#scroll-section-0 .main-message.d"),
+      },
+      values: {
+        messageAOpacity: [0, 1],
       },
     },
     {
@@ -48,15 +55,55 @@
     document.body.setAttribute("id", `show-scene-${currentScene}`);
   }
 
-  function scrollLoop() {
+  function prevScrollHeightHandler() {
     let prevScrollHeight = 0;
 
-    const { scrollY } = scrollYSetHandler();
+    
 
     for (let i = 0; i < currentScene; i++) {
       prevScrollHeight += sceneInfo[i].scrollHeight;
     }
+    return { prevScrollHeight };
+  }
 
+  function animationValuesHandler() {
+    const values = sceneInfo[currentScene].values;
+    let messageAOpacityStart = values.messageAOpacity[0];
+    let messageAOpacityEnd = values.messageAOpacity[1];
+    return {
+      messageAOpacityStart,
+      messageAOpacityEnd,
+    };
+  }
+
+  function calcValues(currentScrollY) {
+    const { messageAOpacityStart, messageAOpacityEnd } =
+      animationValuesHandler();
+  }
+
+  function playAnimation() {
+    const { prevScrollHeight } = prevScrollHeightHandler();
+    const { scrollY } = scrollYSetHandler();
+    const objs = sceneInfo[currentScene.objs];
+    const currentScrollYHeight = scrollY - prevScrollHeight;
+
+    switch (currentScene) {
+      case 0:
+        calcValues(currentScrollYHeight);
+        break;
+      case 1:
+        break;
+      case 2:
+        break;
+      case 3:
+        break;
+    }
+  }
+
+  function scrollLoop() {
+
+    const { prevScrollHeight } = prevScrollHeightHandler();
+    const { scrollY } = scrollYSetHandler();
     if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
       currentScene++;
       setIdInBody();
@@ -67,6 +114,8 @@
       currentScene--;
       setIdInBody();
     }
+
+    playAnimation();
   }
 
   function scrollEventHandler() {
