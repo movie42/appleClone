@@ -39,6 +39,41 @@
     },
   ];
 
+  function scrollYSetHandler() {
+    let scrollY = window.scrollY;
+    return { scrollY };
+  }
+
+  function setIdInBody() {
+    document.body.setAttribute("id", `show-scene-${currentScene}`);
+  }
+
+  function scrollLoop() {
+    let prevScrollHeight = 0;
+
+    const { scrollY } = scrollYSetHandler();
+
+    for (let i = 0; i < currentScene; i++) {
+      prevScrollHeight += sceneInfo[i].scrollHeight;
+    }
+
+    if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+      currentScene++;
+      setIdInBody();
+    }
+
+    if (scrollY < prevScrollHeight) {
+      if (currentScene === 0) return;
+      currentScene--;
+      setIdInBody();
+    }
+  }
+
+  function scrollEventHandler() {
+    let { scrollY } = scrollYSetHandler();
+    scrollLoop();
+  }
+
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅
     for (let i = 0; i < sceneInfo.length; i++) {
@@ -47,37 +82,24 @@
         i
       ].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
     }
-  }
 
-  function scrollYSetHandler() {
-    let scrollY = window.scrollY;
-    return { scrollY };
-  }
+    let totalScrollHeight = 0;
 
-  function scrollLoop() {
-    let prevScrollHeight = 0;
     const { scrollY } = scrollYSetHandler();
-    for (let i = 0; i < currentScene; i++) {
-      prevScrollHeight += sceneInfo[i].scrollHeight;
+
+    for (let i = 0; i < sceneInfo.length; i++) {
+      totalScrollHeight += sceneInfo[i].scrollHeight;
+
+      if (totalScrollHeight >= scrollY) {
+        currentScene = i;
+        break;
+      }
     }
 
-    if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
-      currentScene++;
-    }
-
-    if (scrollY < prevScrollHeight) {
-      if (currentScene === 0) return;
-      currentScene--;
-    }
+    setIdInBody();
   }
 
-  function scrollEventHandler() {
-    let { scrollY } = scrollYSetHandler();
-
-    scrollLoop();
-  }
-
+  window.addEventListener("load", setLayout);
   window.addEventListener("resize", setLayout);
   window.addEventListener("scroll", scrollEventHandler);
-  setLayout();
 })();
