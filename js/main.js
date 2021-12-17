@@ -1,4 +1,5 @@
 (function () {
+  let currentScene = 0;
   const sceneInfo = [
     {
       // 0
@@ -48,7 +49,35 @@
     }
   }
 
-  window.addEventListener("resize", setLayout);
+  function scrollYSetHandler() {
+    let scrollY = window.scrollY;
+    return { scrollY };
+  }
 
+  function scrollLoop() {
+    let prevScrollHeight = 0;
+    const { scrollY } = scrollYSetHandler();
+    for (let i = 0; i < currentScene; i++) {
+      prevScrollHeight += sceneInfo[i].scrollHeight;
+    }
+
+    if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+      currentScene++;
+    }
+
+    if (scrollY < prevScrollHeight) {
+      if (currentScene === 0) return;
+      currentScene--;
+    }
+  }
+
+  function scrollEventHandler() {
+    let { scrollY } = scrollYSetHandler();
+
+    scrollLoop();
+  }
+
+  window.addEventListener("resize", setLayout);
+  window.addEventListener("scroll", scrollEventHandler);
   setLayout();
 })();
