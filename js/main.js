@@ -113,18 +113,22 @@
   }
 
   function scrollLoop() {
+    let startScene = false;
     const { prevScrollHeight } = prevScrollHeightHandler();
     const { scrollY } = scrollYSetHandler();
     if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
       currentScene++;
+      startScene = true;
       setIdInBody();
     }
 
     if (scrollY < prevScrollHeight) {
       if (currentScene === 0) return;
+      startScene = true;
       currentScene--;
       setIdInBody();
     }
+    if (currentScene) return;
 
     playAnimation();
   }
