@@ -1,4 +1,4 @@
-// map, $filter, $reduce
+// map, filter, reduce
 
 export function map(array, func) {
   const newArray = [];
