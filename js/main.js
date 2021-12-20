@@ -1,3 +1,5 @@
+import { map } from "./$.js";
+
 (function () {
   const sceneInfo = [
     {
@@ -50,6 +52,7 @@
   ];
 
   // currentScene
+  // 독립적이지 않다... 평가 시점이 중요함 어떻게 독립적으로 만들 수 있지?
   function currentSceneHandler(totalScrollHeight, scrollY) {
     let currentScene = 0;
     for (let i = 0; i < sceneInfo.length; i++) {
@@ -62,20 +65,12 @@
   }
 
   // 전체 높이
-  function totalScrollHeightHandler(func = "") {
+  function totalScrollHeightHandler() {
     let totalScrollHeight = 0;
     for (let i = 0; i < sceneInfo.length; i++) {
       totalScrollHeight += sceneInfo[i].sceneHeight;
     }
-    if (!func) return totalScrollHeight;
-    if (typeof func === "function") return func(totalScrollHeight);
-  }
-
-  // 현재 스크롤 위치
-  function scrollHeightHandler(func = "") {
-    let currentScrollHeight = window.scrollY;
-    if (!func) return currentScrollHeight;
-    if (typeof func === "function") return func(currentScrollHeight);
+    return totalScrollHeight;
   }
 
   function prevScrollHeightHandler(currentScene) {
@@ -83,8 +78,13 @@
     for (let i = 0; i < currentScene; i++) {
       prevScrollHeight += sceneInfo[i].scrollHeight;
     }
+    return prevScrollHeight;
+  }
 
-    return func(prevScrollHeight);
+  // 현재 스크롤 위치
+  function scrollHeightHandler() {
+    let currentScrollHeight = window.scrollY;
+    return currentScrollHeight;
   }
 
   function setIdInBody(currentScene) {
@@ -93,19 +93,18 @@
 
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅
-    for (let i = 0; i < sceneInfo.length; i++) {
-      sceneInfo[i].sceneHeight = sceneInfo[i].heightNum * window.innerHeight;
-      sceneInfo[
-        i
-      ].objs.container.style.height = `${sceneInfo[i].sceneHeight}px`;
-    }
+    map(sceneInfo, (value) => {
+      value.sceneHeight = value.heightNum * window.innerHeight;
+      value.objs.container.style.height = `${value.sceneHeight}px`;
+    });
   }
 
   function scrollEventHandler() {
     const totalScrollHeight = totalScrollHeightHandler();
     const scrollHeight = scrollHeightHandler();
     let currentScene = currentSceneHandler(totalScrollHeight, scrollHeight);
-    console.log(currentScene);
+
+    setIdInBody(currentScene);
   }
 
   window.addEventListener("load", setLayout);
