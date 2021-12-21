@@ -52,11 +52,11 @@ import { map } from "./$.js";
   ];
 
   // currentScene
+  // 따지고 보면 currentScene 는 전역변수가 아니다.
 
-  function prevScrollHeightHandler(currentScene) {}
+  let currentScene = 0;
 
-  function currentSceneAndPrevScrollHeightHandler() {
-    let currentScene = 0;
+  function prevScrollHeightHandler() {
     let scrollCurrentHeight = scrollHeightHandler();
     let prevScrollHeight = 0;
 
@@ -76,7 +76,7 @@ import { map } from "./$.js";
       currentScene--;
     }
 
-    return { currentScene, prevScrollHeight };
+    return prevScrollHeight;
   }
 
   // 전체 높이
@@ -99,8 +99,7 @@ import { map } from "./$.js";
   }
 
   function scrollEventHandler() {
-    const { currentScene, prevScrollHeight } =
-      currentSceneAndPrevScrollHeightHandler();
+    const prevScrollHeight = prevScrollHeightHandler();
     setIdInBody(currentScene);
   }
 
