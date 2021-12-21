@@ -63,3 +63,28 @@
    하지만...
    처음부터 너무 완벽하게 설계하려고 하지말고 일단...
    **두 개 이상의 함수를 받아서 값을 반환하는 함수를 만들어보자!!**
+
+currentScene가 바뀌지 않는 이유는 무엇일까???
+내부 변수는 원래 업데이트가 되지 않는걸까?
+
+```javascript
+function currentSceneAndPrevScrollHeightHandler() {
+  let currentScene = 0;
+  let prevScrollHeight = prevScrollHeightHandler(currentScene);
+  let scrollCurrentHeight = scrollHeightHandler();
+
+  if (
+    scrollCurrentHeight >
+    prevScrollHeight + sceneInfo[currentScene].sceneHeight
+  ) {
+    currentScene++;
+  }
+
+  if (scrollCurrentHeight < prevScrollHeight) {
+    if (currentScene === 0) return;
+    currentScene--;
+  }
+
+  return { currentScene, prevScrollHeight };
+}
+```

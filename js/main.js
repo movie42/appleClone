@@ -52,16 +52,31 @@ import { map } from "./$.js";
   ];
 
   // currentScene
-  // 독립적이지 않다... 평가 시점이 중요함 어떻게 독립적으로 만들 수 있지?
-  function currentSceneHandler(totalScrollHeight, scrollY) {
+
+  function prevScrollHeightHandler(currentScene) {}
+
+  function currentSceneAndPrevScrollHeightHandler() {
     let currentScene = 0;
-    for (let i = 0; i < sceneInfo.length; i++) {
-      if (totalScrollHeight >= scrollY) {
-        currentScene = i;
-        break;
-      }
+    let scrollCurrentHeight = scrollHeightHandler();
+    let prevScrollHeight = 0;
+
+    for (let i = 0; i < currentScene; i++) {
+      prevScrollHeight += sceneInfo[i].sceneHeight;
     }
-    return currentScene;
+
+    if (
+      scrollCurrentHeight >
+      prevScrollHeight + sceneInfo[currentScene].sceneHeight
+    ) {
+      currentScene++;
+    }
+
+    if (scrollCurrentHeight < prevScrollHeight) {
+      if (currentScene === 0) return;
+      currentScene--;
+    }
+
+    return { currentScene, prevScrollHeight };
   }
 
   // 전체 높이
@@ -71,14 +86,6 @@ import { map } from "./$.js";
       totalScrollHeight += sceneInfo[i].sceneHeight;
     }
     return totalScrollHeight;
-  }
-
-  function prevScrollHeightHandler(currentScene) {
-    let prevScrollHeight = 0;
-    for (let i = 0; i < currentScene; i++) {
-      prevScrollHeight += sceneInfo[i].scrollHeight;
-    }
-    return prevScrollHeight;
   }
 
   // 현재 스크롤 위치
@@ -91,119 +98,23 @@ import { map } from "./$.js";
     document.body.setAttribute("id", `show-scene-${currentScene}`);
   }
 
+  function scrollEventHandler() {
+    const { currentScene, prevScrollHeight } =
+      currentSceneAndPrevScrollHeightHandler();
+    setIdInBody(currentScene);
+  }
+
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅
     map(sceneInfo, (value) => {
       value.sceneHeight = value.heightNum * window.innerHeight;
       value.objs.container.style.height = `${value.sceneHeight}px`;
     });
-  }
 
-  function scrollEventHandler() {
-    const totalScrollHeight = totalScrollHeightHandler();
-    const scrollHeight = scrollHeightHandler();
-    let currentScene = currentSceneHandler(totalScrollHeight, scrollHeight);
-
-    setIdInBody(currentScene);
+    scrollEventHandler();
   }
 
   window.addEventListener("load", setLayout);
   window.addEventListener("resize", setLayout);
   window.addEventListener("scroll", scrollEventHandler);
-
-  function scrollLoop() {
-    // let startScene = false;
-    // const { prevScrollHeight } = prevScrollHeightHandler();
-    // const { scrollY } = scrollYSetHandler();
-    // if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
-    //   currentScene++;
-    //   startScene = true;
-    //   setIdInBody();
-    // }
-    // if (scrollY < prevScrollHeight) {
-    //   if (currentScene === 0) return;
-    //   startScene = true;
-    //   currentScene--;
-    //   setIdInBody();
-    // }
-    // if (currentScene) return;
-    // playAnimation();
-  }
-
-  // // animation opacity handler는 opacity만 변경해준다.
-  // function animationOpacityHandler() {
-  //   const values = sceneInfo[currentScene].values;
-
-  //   let messageAOpacityStart = values.messageAOpacityIn[0];
-  //   let messageAOpacityEnd = values.messageAOpacityIn[1];
-
-  //   return {
-  //     messageAOpacityStart,
-  //     messageAOpacityEnd,
-  //   };
-  // }
-
-  // function calcValues() {
-  //   let rv;
-  //   const values = sceneInfo[currentScene].values.messageAOpacityIn;
-
-  //   const { prevScrollHeight } = prevScrollHeightHandler();
-  //   const { scrollY } = scrollYSetHandler();
-
-  //   const currentScrollYHeight = scrollY - prevScrollHeight;
-
-  //   const scrollHeight = sceneInfo[currentScene].scrollHeight;
-  //   const scrollRatio = currentScrollYHeight / scrollHeight;
-
-  //   const { messageAOpacityStart, messageAOpacityEnd } =
-  //     animationOpacityHandler();
-
-  //   if (values.length === 3) {
-  //     const partScrollStart = values[2].start * scrollHeight;
-  //     const partScrollEnd = values[2].end * scrollHeight;
-  //     const partScrollHeight = partScrollEnd - partScrollStart;
-
-  //     if (
-  //       currentScrollYHeight >= partScrollStart &&
-  //       currentScrollYHeight <= partScrollEnd
-  //     ) {
-  //       rv =
-  //         ((currentScrollYHeight - partScrollStart) / partScrollHeight) *
-  //           (messageAOpacityEnd - messageAOpacityStart) +
-  //         messageAOpacityStart;
-  //     } else if (currentScrollYHeight < partScrollStart) {
-  //       rv = values[0];
-  //     } else if (currentScrollYHeight > partScrollEnd) {
-  //       rv = values[1];
-  //     }
-  //   } else {
-  //     rv =
-  //       scrollRatio * (messageAOpacityEnd - messageAOpacityStart) +
-  //       messageAOpacityStart;
-  //   }
-
-  //   return rv;
-  // }
-
-  // function playAnimation() {
-  //   const objs = sceneInfo[currentScene].objs;
-
-  //   switch (currentScene) {
-  //     case 0:
-  //       let messageAOpacityFadeIn = calcValues();
-  //       // let messageAOpacityFadeOut = calcValues();
-  //       objs.messageA.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageA.style.opacity = messageAOpacityFadeOut;
-  //       // objs.messageB.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageC.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageD.style.opacity = messageAOpacityFadeIn;
-  //       break;
-  //     case 1:
-  //       break;
-  //     case 2:
-  //       break;
-  //     case 3:
-  //       break;
-  //   }
-  // }
 })();
