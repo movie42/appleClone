@@ -49,11 +49,11 @@ import { map, filter } from "./$.js";
 
   // currentScene
   // 독립적이지 않다... 평가 시점이 중요함 어떻게 독립적으로 만들 수 있지?
+  let currentScene = 0;
 
   function prevScrollHeightAndCurrentSceneHandler(
     currentScrollHeight
   ) {
-    let currentScene = 0;
     let prevScrollHeight = 0;
 
     for (let i = 0; i < currentScene; i++) {
@@ -69,6 +69,7 @@ import { map, filter } from "./$.js";
 
     if (currentScrollHeight < prevScrollHeight) {
       if (currentScene === 0) return;
+
       currentScene--;
     }
 
@@ -83,24 +84,20 @@ import { map, filter } from "./$.js";
     );
   }
 
-  function currentSceneHeightHandler(currentScene) {
-    return sceneInfo[currentScene].sceneHeight;
-  }
-
   function sectionList() {
     return document.querySelectorAll("section") !== null
       ? document.querySelectorAll("section")
       : null;
   }
 
+  // undefined일때... 완전 망가짐...
   function currentSceneNodeList(currentScene, func) {
     const nodeList =
-      sectionList()[currentScene].querySelectorAll(".main-message") ||
-      null;
+      sectionList()[currentScene].querySelectorAll(".main-message");
     if (arguments.length < 2) {
-      return nodeList;
+      return nodeList !== null ? nodeList : null;
     }
-    return func(nodeList, currentScene);
+    return nodeList !== null ? func(nodeList, currentScene) : null;
   }
 
   // 전체 높이
@@ -125,8 +122,7 @@ import { map, filter } from "./$.js";
     return currentScrollHeight;
   }
 
-  function fadeInHandler({ node, height }, start, end) {
-    let fadeIn = [0, 1];
+  function fadeInOutHandler({ node, height }, { start, mid, end }) {
     const currentScrollHeight = scrollHeightHandler();
     const { prevScrollHeight } = scrollHeightHandler(
       prevScrollHeightAndCurrentSceneHandler
@@ -134,16 +130,53 @@ import { map, filter } from "./$.js";
 
     let remainHeight = currentScrollHeight - prevScrollHeight;
 
-    console.log(remainHeight);
-
     let startTime = start * height;
+    let midTime = mid * height;
     let endTime = end * height;
 
-    // console.log(remainHeight / height, startTime, endTime);
-
-    node.style.opacity = "1";
+    if (remainHeight >= startTime && remainHeight <= midTime) {
+      node.style.opacity =
+        (remainHeight - startTime) / (midTime - startTime);
+    } else if (remainHeight < startTime) {
+      node.style.opacity = 0;
+    } else if (remainHeight === midTime) {
+      node.style.opacity = 1;
+    } else if (remainHeight > midTime && remainHeight <= endTime) {
+      node.style.opacity -=
+        (remainHeight - midTime) / (endTime - midTime);
+    } else if (remainHeight > endTime) {
+      node.style.opacity = 0;
+    }
   }
-  function fadeOutHandler(node, start, end) {}
+
+  function translateYHandler({ node, height }, { start, mid, end }) {
+    const currentScrollHeight = scrollHeightHandler();
+    const { prevScrollHeight } = scrollHeightHandler(
+      prevScrollHeightAndCurrentSceneHandler
+    );
+
+    let remainHeight = currentScrollHeight - prevScrollHeight;
+
+    let startTime = start * height;
+    let midTime = mid * height;
+    let endTime = end * height;
+
+    if (remainHeight >= startTime && remainHeight <= midTime) {
+      node.style.transform = `translateY(${
+        ((remainHeight - startTime) / (endTime - startTime)) * -20
+      }%)`;
+    } else if (remainHeight < startTime) {
+      node.style.transform = `translateY(0)`;
+    } else if (remainHeight === midTime) {
+      node.style.transform = `translateY(-20%)`;
+    } else if (remainHeight > midTime && remainHeight <= endTime) {
+      node.style.transform = `translateY(${
+        ((remainHeight - startTime) / (endTime - startTime)) * -20
+      }%)`;
+    } else if (remainHeight > endTime) {
+      node.style.transform = `translateY(-40%)`;
+    }
+  }
 
   // 성능이 저하될 가능성이 있음... (message가 1000개 10000개가 된다고 생각하면 분명...)
   function nodeAnimationHandler(nodeList, currentScene) {
@@ -161,8 +194,6 @@ import { map, filter } from "./$.js";
     let { currentScene, prevScrollHeight } =
       prevScrollHeightAndCurrentSceneHandler(currentScrollHeight);
 
-    console.log(currentScene, prevScrollHeight);
-
     setIdInBody(currentScene);
 
     let nodeAnimationValueObjs = currentSceneNodeList(
@@ -173,8 +204,46 @@ import { map, filter } from "./$.js";
 
     switch (currentScene) {
       case 0:
-        fadeInHandler(nodeAnimationValueObjs[0], 0.1, 0.2);
-        fadeOutHandler(nodeAnimationValueObjs[0], 0.3, 0.4);
+        fadeInOutHandler(nodeAnimationValueObjs[0], {
+          start: 0.1,
+          mid: 0.2,
+          end: 0.3
+        });
+        translateYHandler(nodeAnimationValueObjs[0], {
+          start: 0.1,
+          mid: 0.2,
+          end: 0.3
+        });
+        fadeInOutHandler(nodeAnimationValueObjs[1], {
+          start: 0.3,
+          mid: 0.4,
+          end: 0.5
+        });
+        translateYHandler(nodeAnimationValueObjs[1], {
+          start: 0.3,
+          mid: 0.4,
+          end: 0.5
+        });
+        fadeInOutHandler(nodeAnimationValueObjs[2], {
+          start: 0.5,
+          mid: 0.6,
+          end: 0.7
+        });
+        translateYHandler(nodeAnimationValueObjs[2], {
+          start: 0.5,
+          mid: 0.6,
+          end: 0.7
+        });
+        fadeInOutHandler(nodeAnimationValueObjs[3], {
+          start: 0.7,
+          mid: 0.8,
+          end: 0.9
+        });
+        translateYHandler(nodeAnimationValueObjs[3], {
+          start: 0.7,
+          mid: 0.8,
+          end: 0.9
+        });
         break;
       case 1:
         console.log("scene 1");
@@ -193,9 +262,12 @@ import { map, filter } from "./$.js";
 
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅 평가시점 중요하지 않음.
+    console.log();
     map(sceneInfo, (value) => {
-      value.sceneHeight = value.heightNum * window.innerHeight;
-      value.objs.container.style.height = `${value.sceneHeight}px`;
+      if (value.type === "sticky") {
+        value.sceneHeight = value.heightNum * window.innerHeight;
+        value.objs.container.style.height = `${value.sceneHeight}px`;
+      }
     });
 
     scrollEventHandler();
@@ -204,81 +276,4 @@ import { map, filter } from "./$.js";
   window.addEventListener("load", setLayout);
   window.addEventListener("resize", setLayout);
   window.addEventListener("scroll", scrollEventHandler);
-
-  // // animation opacity handler는 opacity만 변경해준다.
-  // function animationOpacityHandler() {
-  //   const values = sceneInfo[currentScene].values;
-
-  //   let messageAOpacityStart = values.messageAOpacityIn[0];
-  //   let messageAOpacityEnd = values.messageAOpacityIn[1];
-
-  //   return {
-  //     messageAOpacityStart,
-  //     messageAOpacityEnd,
-  //   };
-  // }
-
-  // function calcValues() {
-  //   let rv;
-  //   const values = sceneInfo[currentScene].values.messageAOpacityIn;
-
-  //   const { prevScrollHeight } = prevScrollHeightHandler();
-  //   const { scrollY } = scrollYSetHandler();
-
-  //   const currentScrollYHeight = scrollY - prevScrollHeight;
-
-  //   const scrollHeight = sceneInfo[currentScene].scrollHeight;
-  //   const scrollRatio = currentScrollYHeight / scrollHeight;
-
-  //   const { messageAOpacityStart, messageAOpacityEnd } =
-  //     animationOpacityHandler();
-
-  //   if (values.length === 3) {
-  //     const partScrollStart = values[2].start * scrollHeight;
-  //     const partScrollEnd = values[2].end * scrollHeight;
-  //     const partScrollHeight = partScrollEnd - partScrollStart;
-
-  //     if (
-  //       currentScrollYHeight >= partScrollStart &&
-  //       currentScrollYHeight <= partScrollEnd
-  //     ) {
-  //       rv =
-  //         ((currentScrollYHeight - partScrollStart) / partScrollHeight) *
-  //           (messageAOpacityEnd - messageAOpacityStart) +
-  //         messageAOpacityStart;
-  //     } else if (currentScrollYHeight < partScrollStart) {
-  //       rv = values[0];
-  //     } else if (currentScrollYHeight > partScrollEnd) {
-  //       rv = values[1];
-  //     }
-  //   } else {
-  //     rv =
-  //       scrollRatio * (messageAOpacityEnd - messageAOpacityStart) +
-  //       messageAOpacityStart;
-  //   }
-
-  //   return rv;
-  // }
-
-  // function playAnimation() {
-  //   const objs = sceneInfo[currentScene].objs;
-
-  //   switch (currentScene) {
-  //     case 0:
-  //       let messageAOpacityFadeIn = calcValues();
-  //       // let messageAOpacityFadeOut = calcValues();
-  //       objs.messageA.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageA.style.opacity = messageAOpacityFadeOut;
-  //       // objs.messageB.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageC.style.opacity = messageAOpacityFadeIn;
-  //       // objs.messageD.style.opacity = messageAOpacityFadeIn;
-  //       break;
-  //     case 1:
-  //       break;
-  //     case 2:
-  //       break;
-  //     case 3:
-  //       break;
-  //   }
-  // }
 })();
