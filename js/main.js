@@ -21,7 +21,8 @@ window.onload = (function () {
         messageD: document.querySelector("#scroll-section-0 .main-message.d")
       },
       values: {
-        messageAOpacity: [0, 1, { start: 0, end: 0.2 }]
+        messageAOpacity: [0, 1, { start: 0.1, end: 0.2 }],
+        messageBOpacity: [0, 1, { start: 0.3, end: 0.4 }]
       }
     },
     {
@@ -59,9 +60,25 @@ window.onload = (function () {
   function calcValues(values, currentScrollY) {
     let rv;
     // 현재 스크롤 섹션에서 스크롤 비율
-    let scrollRatio = currentScrollY / sceneInfo[currentScene].scrollHeight;
+    const scrollHeight = sceneInfo[currentScene].scrollHeight;
+    const scrollRatio = currentScrollY / scrollHeight;
 
-    rv = scrollRatio * (values[1] - values[0]) + values[0];
+    if (values.length === 3) {
+      // start end 사이에서 애니메이션 실행
+      const partScrollStart = values[2].start * scrollHeight;
+      const partScrollEnd = values[2].end * scrollHeight;
+      const partScrollHeight = partScrollEnd - partScrollStart;
+
+      if (partScrollStart <= currentScrollY && partScrollEnd >= currentScrollY) {
+        rv = ((currentScrollY - partScrollStart) / partScrollHeight) * (values[1] - values[0]);
+      } else if (partScrollStart > currentScrollY) {
+        rv = values[0];
+      } else if (partScrollEnd < currentScrollY) {
+        rv = values[1];
+      }
+    } else {
+      rv = scrollRatio * (values[1] - values[0]) + values[0];
+    }
 
     return rv;
   }
@@ -73,8 +90,8 @@ window.onload = (function () {
     switch (currentScene) {
       case 0:
         let messageAOpacityFadeIn = calcValues(values.messageAOpacity, currentSceneScrollY);
+        console.log(messageAOpacityFadeIn);
         objs.messageA.style.opacity = messageAOpacityFadeIn;
-
         break;
       case 1:
         break;

@@ -103,6 +103,7 @@ a {
   top: 0;
   left: 0;
   width: 100%;
+  opacity: 0;
 }
 #show-scene-0 #scroll-section-0 .sticky-elem,
 #show-scene-1 #scroll-section-1 .sticky-elem,
