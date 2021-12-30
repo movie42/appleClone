@@ -8,14 +8,17 @@ import { map, filter } from "./$.js";
       heightNum: 5, // 브라우저 높이의 5배로 scrollHeight 세팅
       sceneHeight: 0,
       objs: {
-        container: document.querySelector("#scroll-section-0")
+        container: document.querySelector("#scroll-section-0"),
+        canvas: document.querySelector("#video-canvas-0"),
+        context: document
+          .querySelector("#video-canvas-0")
+          .getContext("2d"),
+        videoImages: []
       },
       values: {
-        messageAOpacityIn: [0, 1, { start: 0.1, end: 0.2 }],
-        messageAOpacityOut: [1, 0, { start: 0.25, end: 0.35 }]
-        // messageBOpacity: [0, 1, { start: 0.3, end: 0.4 }],
-        // messageCOpacity: [0, 1, { start: 0.5, end: 0.6 }],
-        // messageDOpacity: [0, 1, { start: 0.7, end: 0.8 }],
+        videoImageCount: 300,
+        imageSequence: [0, 299],
+        canvas_opacity: [1, 0, { start: 0.9, end: 1 }]
       }
     },
     {
@@ -187,9 +190,39 @@ import { map, filter } from "./$.js";
     return eachNodeAnimationValues;
   }
 
-  function scrollEventHandler() {
-    const totalScrollHeight = totalScrollHeightHandler();
+  function calcValues(values, currentYOffset) {
+    let rv;
+    // 현재 씬(스크롤섹션)에서 스크롤된 범위를 비율로 구하기
+    const scrollHeight = sceneInfo[currentScene].sceneHeight;
+    const scrollRatio = currentYOffset / scrollHeight;
 
+    if (values.length === 3) {
+      // start ~ end 사이에 애니메이션 실행
+      const partScrollStart = values[2].start * scrollHeight;
+      const partScrollEnd = values[2].end * scrollHeight;
+      const partScrollHeight = partScrollEnd - partScrollStart;
+
+      if (
+        currentYOffset >= partScrollStart &&
+        currentYOffset <= partScrollEnd
+      ) {
+        rv =
+          ((currentYOffset - partScrollStart) / partScrollHeight) *
+            (values[1] - values[0]) +
+          values[0];
+      } else if (currentYOffset < partScrollStart) {
+        rv = values[0];
+      } else if (currentYOffset > partScrollEnd) {
+        rv = values[1];
+      }
+    } else {
+      rv = scrollRatio * (values[1] - values[0]) + values[0];
+    }
+
+    return rv;
+  }
+
+  function scrollEventHandler() {
     let currentScrollHeight = scrollHeightHandler();
     let { currentScene, prevScrollHeight } =
       prevScrollHeightAndCurrentSceneHandler(currentScrollHeight);
@@ -202,8 +235,25 @@ import { map, filter } from "./$.js";
         nodeAnimationHandler(nodeList, currentScene)
     );
 
+    let remainHeight = currentScrollHeight - prevScrollHeight;
+
     switch (currentScene) {
       case 0:
+        let sequence = Math.round(
+          calcValues(sceneInfo[0].values.imageSequence, remainHeight)
+        );
+
+        sceneInfo[0].objs.context.drawImage(
+          sceneInfo[0].objs.videoImages[sequence],
+          0,
+          0
+        );
+
+        sceneInfo[0].objs.canvas.style.opacity = calcValues(
+          sceneInfo[0].values.canvas_opacity,
+          remainHeight
+        );
+
         fadeInOutHandler(nodeAnimationValueObjs[0], {
           start: 0.1,
           mid: 0.2,
@@ -260,9 +310,19 @@ import { map, filter } from "./$.js";
     }
   }
 
+  function setCanvasImage() {
+    let imageElement;
+    for (let i = 0; i < sceneInfo[0].values.videoImageCount; i++) {
+      imageElement = document.createElement("img");
+      imageElement.src = `./video/001/IMG_${6726 + i}.JPG`;
+      sceneInfo[0].objs.videoImages.push(imageElement);
+    }
+  }
+
+  setCanvasImage();
+
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅 평가시점 중요하지 않음.
-    console.log();
     map(sceneInfo, (value) => {
       if (value.type === "sticky") {
         value.sceneHeight = value.heightNum * window.innerHeight;
@@ -270,10 +330,20 @@ import { map, filter } from "./$.js";
       }
     });
 
+    const heightRatio = window.innerHeight / 1080;
+    sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
+
     scrollEventHandler();
   }
 
-  window.addEventListener("load", setLayout);
+  window.addEventListener("load", () => {
+    setLayout();
+    sceneInfo[0].objs.context.drawImage(
+      sceneInfo[0].objs.videoImages,
+      0,
+      0
+    );
+  });
   window.addEventListener("resize", setLayout);
   window.addEventListener("scroll", scrollEventHandler);
 })();
