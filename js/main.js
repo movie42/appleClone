@@ -55,6 +55,19 @@ window.onload = (function () {
       sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
       sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
     }
+
+    // 초기 show-scene을 currentScnene에 따라 body에 설정하기 위한 코드
+    let totalScrollHeight = 0;
+    scrollY = window.scrollY;
+    for (let i = 0; i < sceneInfo.length; i++) {
+      totalScrollHeight += sceneInfo[i].scrollHeight;
+
+      if (totalScrollHeight >= scrollY) {
+        currentScene = i;
+        break;
+      }
+    }
+    document.body.setAttribute("id", `show-scene-${currentScene}`);
   }
 
   // debounce Resize시 매번 불러오지 않기 위해서
@@ -86,17 +99,19 @@ window.onload = (function () {
 
     if (scrollY > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
       currentScene++;
+      document.body.setAttribute("id", `show-scene-${currentScene}`);
     }
+
     if (scrollY < prevScrollHeight) {
       currentScene--;
+      document.body.setAttribute("id", `show-scene-${currentScene}`);
     }
-    console.log(currentScene);
   }
 
-  window.addEventListener("resize", debounce(setLayout, 500, true));
   window.addEventListener("scroll", () => {
     scrollY = window.scrollY;
     scrollLoop();
   });
+  window.addEventListener("resize", debounce(setLayout, 500, true));
   window.addEventListener("load", setLayout);
 })();
