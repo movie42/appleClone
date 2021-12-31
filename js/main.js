@@ -119,6 +119,7 @@ window.onload = (function () {
         rect1X: [0, 0, { start: 0, end: 0 }],
         rect2X: [0, 0, { start: 0, end: 0 }],
         blendHeight: [0, 0, { start: 0, end: 0 }],
+        canvas_scale: [0, 0, { start: 0, end: 0 }],
         rectStartY: 0,
       },
     },
@@ -506,6 +507,8 @@ window.onload = (function () {
           // 캔버스가 브라우저 상단에 닫지 않았다. step1
           objs.canvas.classList.remove("sticky");
         } else {
+          // 캔버스가 브라우저 상단에 다았다. step2
+
           values.blendHeight[0] = 0;
           values.blendHeight[1] = objs.canvas.height;
           values.blendHeight[2].start = values.rect1X[2].end;
@@ -530,7 +533,19 @@ window.onload = (function () {
           objs.canvas.style.top = `${
             -(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2
           }px`;
-          // 캔버스가 브라우저 상단에 다았다. step2
+
+          if (scrollRatio > values.blendHeight[2].end) {
+            values.canvas_scale[0] = canvasScaleRatio;
+            values.canvas_scale[1] =
+              document.body.offsetWidth / (1.5 * objs.canvas.width);
+            values.canvas_scale[2].start = values.blendHeight[2].end;
+            values.canvas_scale[2].end = values.canvas_scale[2].start + 0.2;
+
+            objs.canvas.style.transform = `scale(${calcValues(
+              values.canvas_scale,
+              currentSceneScrollY,
+            )})`;
+          }
         }
 
         break;
