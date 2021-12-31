@@ -118,6 +118,7 @@ window.onload = (function () {
       values: {
         rect1X: [0, 0, { start: 0, end: 0 }],
         rect2X: [0, 0, { start: 0, end: 0 }],
+        rectStartY: 0,
       },
     },
   ];
@@ -417,9 +418,15 @@ window.onload = (function () {
         objs.context.drawImage(objs.images[0], 0, 0);
 
         // 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
-        const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+        const recalculatedInnerWidth =
+          document.body.offsetWidth / canvasScaleRatio;
         const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
 
+        if (!values.rectStartY) {
+          values.rectStartY = objs.canvas.getBoundingClientRect().top;
+          values.rect1X[2].end = values.rectStartY / scrollHeight;
+          values.rect2X[2].end = values.rectStartY / scrollHeight;
+        }
         const whiteReactWdith = recalculatedInnerWidth * 0.15;
 
         values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
@@ -428,18 +435,33 @@ window.onload = (function () {
           values.rect1X[0] + recalculatedInnerWidth - whiteReactWdith;
         values.rect2X[1] = values.rect2X[0] + whiteReactWdith;
 
+        // 좌우 흰색 박스
+        // objs.context.fillRect(
+        //   values.rect1X[0],
+        //   0,
+        //   parseInt(whiteReactWdith),
+        //   recalculatedInnerHeight,
+        // );
+        // objs.context.fillRect(
+        //   values.rect2X[0],
+        //   0,
+        //   parseInt(whiteReactWdith),
+        //   recalculatedInnerHeight,
+        // );
+
         objs.context.fillRect(
-          values.rect1X[0],
+          parseInt(calcValues(values.rect1X, currentSceneScrollY)),
           0,
           parseInt(whiteReactWdith),
           recalculatedInnerHeight,
         );
         objs.context.fillRect(
-          values.rect2X[0],
+          parseInt(calcValues(values.rect2X, currentSceneScrollY)),
           0,
           parseInt(whiteReactWdith),
           recalculatedInnerHeight,
         );
+
         break;
     }
   }
