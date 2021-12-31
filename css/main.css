@@ -23,6 +23,7 @@ a {
 
 .global-nav {
   position: absolute;
+  z-index: 1;
   top: 0;
   left: 0;
   width: 100%;
@@ -32,6 +33,7 @@ a {
 
 .local-nav {
   position: absolute;
+  z-index: 1;
   top: 45px;
   left: 0;
   width: 100%;
@@ -68,6 +70,9 @@ a {
 }
 
 #scroll-section-0 h1 {
+  position: relative;
+  z-index: 5;
+  top: -10vh;
   font-size: 4rem;
   text-align: center;
 }
@@ -113,10 +118,17 @@ a {
 }
 
 .sticky-elem-canvas {
-  z-index: -1;
   opacity: 1;
   top: 0;
+  height: 100%;
 }
+
+.sticky-elem-canvas canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
 .description {
   max-width: 1000px;
   margin: 0 auto;
@@ -133,9 +145,10 @@ a {
 
 .desc-message {
   width: 50%;
-  top: 15vh;
-  left: 30vw;
+  top: 10vh;
+  left: 60vw;
   font-weight: bold;
+  opacity: 0;
 }
 
 .pin {
@@ -164,6 +177,16 @@ a {
   color: #888;
   font-size: 1.2rem;
   text-align: center;
+}
+
+.image-blend-canvas {
+  background-color: blue;
+}
+
+#scroll-section-3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .footer {
