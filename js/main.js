@@ -21,8 +21,25 @@ window.onload = (function () {
         messageD: document.querySelector("#scroll-section-0 .main-message.d")
       },
       values: {
-        messageAOpacity: [0, 1, { start: 0.1, end: 0.2 }],
-        messageBOpacity: [0, 1, { start: 0.3, end: 0.4 }]
+        messageAOpacityIn: [0, 1, { start: 0.05, end: 0.15 }],
+        messageAOpacityOut: [1, 0, { start: 0.2, end: 0.25 }],
+        messageATranslateYIn: [20, 0, { start: 0.05, end: 0.15 }],
+        messageATranslateYOut: [0, -20, { start: 0.2, end: 0.25 }],
+
+        messageBOpacityIn: [0, 1, { start: 0.25, end: 0.35 }],
+        messageBOpacityOut: [1, 0, { start: 0.4, end: 0.45 }],
+        messageBTranslateYIn: [20, 0, { start: 0.25, end: 0.35 }],
+        messageBTranslateYOut: [0, -20, { start: 0.4, end: 0.45 }],
+
+        messageCOpacityIn: [0, 1, { start: 0.45, end: 0.55 }],
+        messageCOpacityOut: [1, 0, { start: 0.6, end: 0.75 }],
+        messageCTranslateYIn: [20, 0, { start: 0.45, end: 0.55 }],
+        messageCTranslateYOut: [0, -20, { start: 0.6, end: 0.75 }],
+
+        messageDOpacityIn: [0, 1, { start: 0.75, end: 0.85 }],
+        messageDOpacityOut: [1, 0, { start: 0.9, end: 0.95 }],
+        messageDTranslateYIn: [20, 0, { start: 0.75, end: 0.85 }],
+        messageDTranslateYOut: [0, -20, { start: 0.9, end: 0.95 }]
       }
     },
     {
@@ -70,7 +87,9 @@ window.onload = (function () {
       const partScrollHeight = partScrollEnd - partScrollStart;
 
       if (partScrollStart <= currentScrollY && partScrollEnd >= currentScrollY) {
-        rv = ((currentScrollY - partScrollStart) / partScrollHeight) * (values[1] - values[0]);
+        rv =
+          ((currentScrollY - partScrollStart) / partScrollHeight) * (values[1] - values[0]) +
+          values[0];
       } else if (partScrollStart > currentScrollY) {
         rv = values[0];
       } else if (partScrollEnd < currentScrollY) {
@@ -87,11 +106,61 @@ window.onload = (function () {
     const objs = sceneInfo[currentScene].objs;
     const values = sceneInfo[currentScene].values;
     let currentSceneScrollY = scrollY - prevScrollHeight;
+    const scrollHeight = sceneInfo[currentScene].scrollHeight;
+
+    const scrollRatio = currentSceneScrollY / scrollHeight;
+
     switch (currentScene) {
       case 0:
-        let messageAOpacityFadeIn = calcValues(values.messageAOpacity, currentSceneScrollY);
-        console.log(messageAOpacityFadeIn);
-        objs.messageA.style.opacity = messageAOpacityFadeIn;
+        if (scrollRatio <= 0.2) {
+          let messageAOpacityFadeIn = calcValues(values.messageAOpacityIn, currentSceneScrollY);
+          let messageATranslateYIn = calcValues(values.messageATranslateYIn, currentSceneScrollY);
+          objs.messageA.style.opacity = messageAOpacityFadeIn;
+          objs.messageA.style.transform = `translateY(${messageATranslateYIn}%)`;
+        } else {
+          let messageAOpacityFadeOut = calcValues(values.messageAOpacityOut, currentSceneScrollY);
+          let messageATranslateYOut = calcValues(values.messageATranslateYOut, currentSceneScrollY);
+          objs.messageA.style.opacity = messageAOpacityFadeOut;
+          objs.messageA.style.transform = `translateY(${messageATranslateYOut}%)`;
+        }
+
+        if (scrollRatio <= 0.35) {
+          let messageBOpacityFadeIn = calcValues(values.messageBOpacityIn, currentSceneScrollY);
+          let messageBTranslateYIn = calcValues(values.messageBTranslateYIn, currentSceneScrollY);
+
+          objs.messageB.style.opacity = messageBOpacityFadeIn;
+          objs.messageB.style.transform = `translateY(${messageBTranslateYIn}%)`;
+        } else {
+          let messageBOpacityFadeOut = calcValues(values.messageBOpacityOut, currentSceneScrollY);
+          let messageBTranslateYOut = calcValues(values.messageBTranslateYOut, currentSceneScrollY);
+          objs.messageB.style.opacity = messageBOpacityFadeOut;
+          objs.messageB.style.transform = `translateY(${messageBTranslateYOut}%)`;
+        }
+
+        if (scrollRatio <= 0.55) {
+          let messageCOpacityFadeIn = calcValues(values.messageCOpacityIn, currentSceneScrollY);
+          let messageCTranslateYIn = calcValues(values.messageCTranslateYIn, currentSceneScrollY);
+
+          objs.messageC.style.opacity = messageCOpacityFadeIn;
+          objs.messageC.style.transform = `translateY(${messageCTranslateYIn}%)`;
+        } else {
+          let messageCOpacityFadeOut = calcValues(values.messageCOpacityOut, currentSceneScrollY);
+          let messageCTranslateYOut = calcValues(values.messageCTranslateYOut, currentSceneScrollY);
+          objs.messageC.style.opacity = messageCOpacityFadeOut;
+          objs.messageC.style.transform = `translateY(${messageCTranslateYOut}%)`;
+        }
+
+        if (scrollRatio <= 0.85) {
+          let messageDOpacityFadeIn = calcValues(values.messageDOpacityIn, currentSceneScrollY);
+          let messageDTranslateYIn = calcValues(values.messageDTranslateYIn, currentSceneScrollY);
+          objs.messageD.style.opacity = messageDOpacityFadeIn;
+          objs.messageD.style.transform = `translateY(${messageDTranslateYIn}%)`;
+        } else {
+          let messageDOpacityFadeOut = calcValues(values.messageDOpacityOut, currentSceneScrollY);
+          let messageDTranslateYOut = calcValues(values.messageDTranslateYOut, currentSceneScrollY);
+          objs.messageD.style.opacity = messageDOpacityFadeOut;
+          objs.messageD.style.transform = `translateY(${messageDTranslateYOut}%)`;
+        }
         break;
       case 1:
         break;
@@ -105,7 +174,11 @@ window.onload = (function () {
   function setLayout() {
     // 각 스크롤 섹션의 높이 세팅
     for (let i = 0; i < sceneInfo.length; i++) {
-      sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
+      if (sceneInfo[i].type === "sticky") {
+        sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
+      } else {
+        sceneInfo[i].scrollHeight = sceneInfo[i].objs.container.clientHeight;
+      }
       sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
     }
 
