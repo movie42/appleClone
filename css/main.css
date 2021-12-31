@@ -64,7 +64,6 @@ a {
   margin-right: auto;
 }
 .scroll-section {
-  border: 3px solid red;
   padding-top: 50vh;
 }
 
@@ -105,11 +104,18 @@ a {
   width: 100%;
   opacity: 0;
 }
+
 #show-scene-0 #scroll-section-0 .sticky-elem,
 #show-scene-1 #scroll-section-1 .sticky-elem,
 #show-scene-2 #scroll-section-2 .sticky-elem,
 #show-scene-3 #scroll-section-3 .sticky-elem {
   display: block;
+}
+
+.sticky-elem-canvas {
+  z-index: -1;
+  opacity: 1;
+  top: 0;
 }
 .description {
   max-width: 1000px;
@@ -127,6 +133,8 @@ a {
 
 .desc-message {
   width: 50%;
+  top: 15vh;
+  left: 30vw;
   font-weight: bold;
 }
 
