@@ -400,6 +400,53 @@ window.onload = (function () {
           )})`;
         }
 
+        // 3번 캔버스 그려주기
+        // 가로 세로 모두 꽉차게 하기 위해 여기에서 세팅
+        if (scrollRatio > 0.9) {
+          const objs = sceneInfo[3].objs;
+          const values = sceneInfo[3].values;
+          const widthRatio = window.innerWidth / objs.canvas.width;
+          const heightRatio = window.innerHeight / objs.canvas.height;
+          let canvasScaleRatio;
+
+          if (widthRatio <= heightRatio) {
+            // canvas보다 브라우저 창이 홀쭉한 경우
+            canvasScaleRatio = heightRatio;
+          } else {
+            canvasScaleRatio = widthRatio;
+          }
+
+          objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+          objs.context.fillStyle = `#fff`;
+          objs.context.drawImage(objs.images[0], 0, 0);
+
+          // 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
+          const recalculatedInnerWidth =
+            document.body.offsetWidth / canvasScaleRatio;
+          const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+          const whiteReactWdith = recalculatedInnerWidth * 0.15;
+
+          values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
+          values.rect1X[1] = values.rect1X[0] - whiteReactWdith;
+          values.rect2X[0] =
+            values.rect1X[0] + recalculatedInnerWidth - whiteReactWdith;
+          values.rect2X[1] = values.rect2X[0] + whiteReactWdith;
+
+          objs.context.fillRect(
+            parseInt(values.rect1X[0]),
+            0,
+            parseInt(whiteReactWdith),
+            recalculatedInnerHeight,
+          );
+          objs.context.fillRect(
+            parseInt(values.rect2X[0]),
+            0,
+            parseInt(whiteReactWdith),
+            recalculatedInnerHeight,
+          );
+        }
+
         break;
       case 3:
         // 가로 세로 모두 꽉차게 하기 위해 여기에서 세팅
@@ -440,20 +487,6 @@ window.onload = (function () {
         values.rect2X[0] =
           values.rect1X[0] + recalculatedInnerWidth - whiteReactWdith;
         values.rect2X[1] = values.rect2X[0] + whiteReactWdith;
-
-        // 좌우 흰색 박스
-        // objs.context.fillRect(
-        //   values.rect1X[0],
-        //   0,
-        //   parseInt(whiteReactWdith),
-        //   recalculatedInnerHeight,
-        // );
-        // objs.context.fillRect(
-        //   values.rect2X[0],
-        //   0,
-        //   parseInt(whiteReactWdith),
-        //   recalculatedInnerHeight,
-        // );
 
         objs.context.fillRect(
           parseInt(calcValues(values.rect1X, currentSceneScrollY)),
