@@ -115,7 +115,10 @@ window.onload = (function () {
         ],
         images: [],
       },
-      values: {},
+      values: {
+        rect1X: [0, 0, { start: 0, end: 0 }],
+        rect2X: [0, 0, { start: 0, end: 0 }],
+      },
     },
   ];
 
@@ -413,6 +416,30 @@ window.onload = (function () {
         objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
         objs.context.drawImage(objs.images[0], 0, 0);
 
+        // 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
+        const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+        const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+        const whiteReactWdith = recalculatedInnerWidth * 0.15;
+
+        values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
+        values.rect1X[1] = values.rect1X[0] - whiteReactWdith;
+        values.rect2X[0] =
+          values.rect1X[0] + recalculatedInnerWidth - whiteReactWdith;
+        values.rect2X[1] = values.rect2X[0] + whiteReactWdith;
+
+        objs.context.fillRect(
+          values.rect1X[0],
+          0,
+          parseInt(whiteReactWdith),
+          recalculatedInnerHeight,
+        );
+        objs.context.fillRect(
+          values.rect2X[0],
+          0,
+          parseInt(whiteReactWdith),
+          recalculatedInnerHeight,
+        );
         break;
     }
   }
