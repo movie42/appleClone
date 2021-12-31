@@ -501,6 +501,17 @@ window.onload = (function () {
           recalculatedInnerHeight,
         );
 
+        if (scrollRatio < values.rect1X[2].end) {
+          // 캔버스가 브라우저 상단에 닫지 않았다. step1
+          objs.canvas.classList.remove("sticky");
+        } else {
+          objs.canvas.classList.add("sticky");
+          objs.canvas.style.top = `${
+            -(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2
+          }px`;
+          // 캔버스가 브라우저 상단에 다았다. step2
+        }
+
         break;
     }
   }
